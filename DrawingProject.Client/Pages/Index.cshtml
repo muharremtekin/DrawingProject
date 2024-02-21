@@ -1,0 +1,103 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home page";
+}
+
+<style>
+    #draw-canvas {
+        background-color: #ddd;
+    }
+</style>
+
+<div>
+    <input type="color" id="color" value="#000000" />
+    <input type="button" id="clear" value="Clear" />
+</div>
+<div>
+    <canvas id="draw-canvas" height="500" width="800"></canvas>
+</div>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.js"></script>
+<script>
+    @* var connection = new signalR.HubConnectionBuilder()
+        .withUrl("/draw")
+        .configureLogging(signalR.LogLevel.Information)
+        .build(); *@
+
+    @* var connection = new signalR.HubConnection('draw')
+
+        connection.on('newMessage', console.log)
+
+        connection.start().catch(err => console.error) *@
+
+const connection = new signalR.HubConnectionBuilder()
+        .withUrl("/draw")
+        .configureLogging(signalR.LogLevel.Information)
+        .build();
+    connection.on('newStroke',drawStroke)
+    async function start() {
+        try {
+            await connection.start();
+            console.log("SignalR Connected.");
+        } catch (err) {
+            console.log(err);
+            setTimeout(start, 5000);
+        }
+    };
+
+
+
+    connection.onclose(async () => {
+        await start();
+    });
+
+    // Start the connection.
+    start();
+
+
+    const canvas = document.getElementById("draw-canvas");
+
+    const ctx = canvas.getContext("2d");
+
+
+    var penDown = false
+    var previous = { x: 0, y: 0 }
+    canvas.addEventListener('mousedown', ev => {
+        penDown = true
+    })
+
+    canvas.addEventListener('mouseup', ev => {
+        penDown = false
+    })
+
+    canvas.addEventListener('mousemove', ev => {
+        if (penDown) {
+
+            var start = {
+                x: previous.x - canvas.offsetLeft,
+                y: previous.y - canvas.offsetTop
+            }
+            var end = {
+                x: ev.pageX - canvas.offsetLeft,
+                y: ev.pageY - canvas.offsetTop
+            }
+            drawStroke(start, end)
+            connection.invoke('NewStroke', start, end)
+        }
+        previous = {
+            x: ev.pageX,
+            y: ev.pageY
+        }
+    })
+
+    function drawStroke(start, end) {
+        ctx.beginPath();
+        ctx.moveTo(start.x, start.y);
+        ctx.lineTo(end.x, end.y);
+        ctx.stroke();
+    }
+
+
+</script>
