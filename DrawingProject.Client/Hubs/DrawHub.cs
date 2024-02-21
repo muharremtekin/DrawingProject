@@ -4,14 +4,34 @@ namespace DrawingProject.Client.Hubs;
 
 public class DrawHub : Hub
 {
-    public async Task SendMessage(string message)
+    private static List<Stroke> strokes = new List<Stroke>();
+
+    public async Task NewStrokes(IEnumerable<Stroke> newStrokes)
     {
-        await Clients.All.SendAsync("ReceiveMessage", $"{Context.ConnectionId}: {message}");
+        lock (strokes)
+        {
+            strokes.AddRange(newStrokes);
+        }
+        var tasks = newStrokes.Select(
+            s => Clients.Others.SendAsync("newStroke", s.Start, s.End, s.Color));
+        await Task.WhenAll(tasks);
     }
 
-    public async Task NewStroke(Point start, Point end)
+    public async Task ClearCanvas()
     {
-        await Clients.Others.SendAsync("newStroke", start, end);
+        var task = Clients.Others.SendAsync("clearCanvas");
+        lock (strokes)
+        {
+            strokes.Clear();
+        }
+        await task;
+    }
+
+    public override async Task OnConnectedAsync()
+    {
+        await Clients.Caller.SendAsync("clearCanvas");
+        var tasks = strokes.Select(s => Clients.Caller.SendAsync("newStroke", s.Start, s.End, s.Color));
+        await Task.WhenAll(tasks);
     }
 }
 

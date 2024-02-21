@@ -21,22 +21,17 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.js"></script>
 <script>
-    @* var connection = new signalR.HubConnectionBuilder()
-        .withUrl("/draw")
-        .configureLogging(signalR.LogLevel.Information)
-        .build(); *@
 
-    @* var connection = new signalR.HubConnection('draw')
+    var unsentStrokes = [];
 
-        connection.on('newMessage', console.log)
-
-        connection.start().catch(err => console.error) *@
-
-const connection = new signalR.HubConnectionBuilder()
+    const connection = new signalR.HubConnectionBuilder()
         .withUrl("/draw")
         .configureLogging(signalR.LogLevel.Information)
         .build();
-    connection.on('newStroke',drawStroke)
+
+    connection.on('newStroke', drawStroke)
+    connection.on('clearCanvas', clearCanvas)
+
     async function start() {
         try {
             await connection.start();
@@ -47,57 +42,84 @@ const connection = new signalR.HubConnectionBuilder()
         }
     };
 
-
-
     connection.onclose(async () => {
         await start();
     });
 
     // Start the connection.
-    start();
+    start()
+        .then(() => console.log('connected!'))
+        .catch(err => console.log(err))
 
+    const canvas = document.getElementById("draw-canvas")
+    const ctx = canvas.getContext("2d")
 
-    const canvas = document.getElementById("draw-canvas");
+    var clearButton = document.getElementById('clear')
+    clearButton.addEventListener('click', clearCanvas)
 
-    const ctx = canvas.getContext("2d");
-
+    var colorButton = document.getElementById('color')
 
     var penDown = false
-    var previous = { x: 0, y: 0 }
-    canvas.addEventListener('mousedown', ev => {
+    var previous = { x: 0, y: 0, ts: 0 };
+
+    canvas.addEventListener('mousedown', handleMouseDown)
+    canvas.addEventListener('mouseup', handleMouseUp)
+    canvas.addEventListener('mousemove', handleMouseMove)
+
+    function handleMouseDown(ev) {
+        ev.preventDefault()
         penDown = true
-    })
+    }
 
-    canvas.addEventListener('mouseup', ev => {
+    function handleMouseUp(ev) {
+        ev.preventDefault()
         penDown = false
-    })
+    }
 
-    canvas.addEventListener('mousemove', ev => {
-        if (penDown) {
-
-            var start = {
+    function handleMouseMove(ev) {
+        ev.preventDefault()
+        const millisecondsSinceLastStroke = (new Date()).getTime() - previous.ts
+        if (penDown && millisecondsSinceLastStroke < 100) {
+            const start = {
                 x: previous.x - canvas.offsetLeft,
                 y: previous.y - canvas.offsetTop
             }
-            var end = {
+            const end = {
                 x: ev.pageX - canvas.offsetLeft,
                 y: ev.pageY - canvas.offsetTop
             }
-            drawStroke(start, end)
-            connection.invoke('NewStroke', start, end)
+            drawStroke(start, end, colorButton.value)
+            unsentStrokes.push({
+                start,
+                end,
+                color: colorButton.value
+            })
         }
         previous = {
             x: ev.pageX,
-            y: ev.pageY
+            y: ev.pageY,
+            ts: (new Date()).getTime()
         }
-    })
-
-    function drawStroke(start, end) {
-        ctx.beginPath();
-        ctx.moveTo(start.x, start.y);
-        ctx.lineTo(end.x, end.y);
-        ctx.stroke();
     }
 
+    function drawStroke(start, end, color) {
+        color = color || "#000"
+        ctx.strokeStyle = color
+        ctx.beginPath()
+        ctx.moveTo(start.x, start.y)
+        ctx.lineTo(end.x, end.y)
+        ctx.stroke()
+    }
+
+    setInterval(() => {
+        if (unsentStrokes.length) {
+            connection.send('NewStrokes', unsentStrokes);
+            unsentStrokes = [];
+        }
+    }, 250);
+
+    function clearCanvas() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height)
+    }
 
 </script>

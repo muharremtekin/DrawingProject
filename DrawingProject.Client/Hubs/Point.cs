@@ -1,8 +1,8 @@
 ﻿namespace DrawingProject.Client.Hubs;
 
-public record Point
+public class Point
 {
-    public int X { get; init; }
-    public int Y { get; init; }
+    public int X { get; set; }
+    public int Y { get; set; }
 }
 
