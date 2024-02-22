@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.8.34525.116
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DrawingProject.Client", "DrawingProject.Client\DrawingProject.Client.csproj", "{77364B8D-3C69-455D-AC46-486DA719706C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DrawingProject.Client", "DrawingProject.Client\DrawingProject.Client.csproj", "{77364B8D-3C69-455D-AC46-486DA719706C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DrawingProject.WebApi", "DrawingProject.WebApi\DrawingProject.WebApi.csproj", "{2318F796-3D17-4740-A4B4-F6BC08F02DE9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{77364B8D-3C69-455D-AC46-486DA719706C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{77364B8D-3C69-455D-AC46-486DA719706C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{77364B8D-3C69-455D-AC46-486DA719706C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2318F796-3D17-4740-A4B4-F6BC08F02DE9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2318F796-3D17-4740-A4B4-F6BC08F02DE9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2318F796-3D17-4740-A4B4-F6BC08F02DE9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2318F796-3D17-4740-A4B4-F6BC08F02DE9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

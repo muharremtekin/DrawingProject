@@ -25,9 +25,9 @@
     var unsentStrokes = [];
 
     const connection = new signalR.HubConnectionBuilder()
-        .withUrl("/draw")
-        .configureLogging(signalR.LogLevel.Information)
-        .build();
+        .configureLogging(signalR.LogLevel.Debug)
+        .withUrl('https://localhost:44324/draw')
+        .build()
 
     connection.on('newStroke', drawStroke)
     connection.on('clearCanvas', clearCanvas)
@@ -55,7 +55,13 @@
     const ctx = canvas.getContext("2d")
 
     var clearButton = document.getElementById('clear')
-    clearButton.addEventListener('click', clearCanvas)
+    clearButton.addEventListener('click', ev => {
+        ev.preventDefault()
+        if (confirm("Are you sure you want to clear everyone's canvases?")) {
+            clearCanvas()
+            connection.send('ClearCanvas')
+        }
+    })
 
     var colorButton = document.getElementById('color')
 

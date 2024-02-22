@@ -1,4 +1,4 @@
-﻿namespace DrawingProject.Client.Hubs;
+﻿namespace DrawingProject.WebApi.Entities;
 public class Stroke
 {
     public Point Start { get; set; }

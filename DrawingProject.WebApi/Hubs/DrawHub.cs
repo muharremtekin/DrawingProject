@@ -1,6 +1,7 @@
-﻿using Microsoft.AspNetCore.SignalR;
+﻿using DrawingProject.WebApi.Entities;
+using Microsoft.AspNetCore.SignalR;
 
-namespace DrawingProject.Client.Hubs;
+namespace DrawingProject.WebApi.Hubs;
 
 public class DrawHub : Hub
 {

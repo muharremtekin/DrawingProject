@@ -1,0 +1,6 @@
+@DrawingProject.WebApi_HostAddress = http://localhost:5062
+
+GET {{DrawingProject.WebApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
